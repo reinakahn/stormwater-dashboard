@@ -10,10 +10,10 @@ import {
 // submitted to SF Bay RWQCB, September 2025
 
 const CITY_META = {
-  "San Jose":  { pop: 979415, color: "#38bdf8", totalCost: 123982000, nextCost: 132402000 },
-  "Sunnyvale": { pop: 155805, color: "#a78bfa", totalCost: 4848000,   nextCost: 5040000   },
-  "Saratoga":  { pop: 31000,  color: "#34d399", totalCost: 1239000,   nextCost: 1270000   },
-  "Campbell":  { pop: 42895,  color: "#fbbf24", totalCost: 1150000,   nextCost: 1187000   },
+  "San Jose":  { pop: 979415, color: "#0284c7", totalCost: 123982000, nextCost: 132402000 },
+  "Sunnyvale": { pop: 155805, color: "#7c3aed", totalCost: 4848000,   nextCost: 5040000   },
+  "Saratoga":  { pop: 31000,  color: "#059669", totalCost: 1239000,   nextCost: 1270000   },
+  "Campbell":  { pop: 42895,  color: "#d97706", totalCost: 1150000,   nextCost: 1187000   },
 };
 
 // Each provision has: cost per city, and measuredOutputs (the real quantifiable results)
@@ -246,7 +246,7 @@ const PROVISIONS = [
 ];
 
 const CITY_NAMES = Object.keys(CITY_META);
-const COLORS = { "San Jose": "#38bdf8", "Sunnyvale": "#a78bfa", "Saratoga": "#34d399", "Campbell": "#fbbf24" };
+const COLORS = { "San Jose": "#0284c7", "Sunnyvale": "#7c3aed", "Saratoga": "#059669", "Campbell": "#d97706" };
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 const fmtNum = (n) => {
@@ -255,7 +255,7 @@ const fmtNum = (n) => {
   return n.toString();
 };
 const fmtCost = (n) => n >= 1000000 ? `$${(n/1000000).toFixed(2)}M` : `$${(n/1000).toFixed(0)}K`;
-const scoreColor = (s) => s >= 95 ? "#34d399" : s >= 88 ? "#38bdf8" : s >= 80 ? "#fbbf24" : "#f87171";
+const scoreColor = (s) => s >= 95 ? "#059669" : s >= 88 ? "#0284c7" : s >= 80 ? "#d97706" : "#f87171";
 const avgScore = (prov) => Math.round(CITY_NAMES.reduce((s, c) => s + prov.scores[c], 0) / CITY_NAMES.length);
 const overallCityScore = (city) => Math.round(PROVISIONS.reduce((s, p) => s + p.scores[city], 0) / PROVISIONS.length);
 
@@ -268,12 +268,12 @@ function AggregateRow({ metric, provision }) {
   const max = Math.max(...values.map(v => v.val));
 
   return (
-    <div style={{ borderBottom: `1px solid #1a2d46`, padding: "12px 0" }}>
+    <div style={{ borderBottom: "1px solid #e2e8f0", padding: "12px 0" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
-        <span style={{ color: "#94a3b8", fontSize: 12, fontWeight: 600 }}>{metric.label}</span>
-        <span style={{ color: "#e2e8f0", fontFamily: "monospace", fontWeight: 800, fontSize: 18 }}>
+        <span style={{ color: "#64748b", fontSize: 14, fontWeight: 600 }}>{metric.label}</span>
+        <span style={{ color: "#1e293b", fontFamily: "inherit", fontWeight: 800, fontSize: 20 }}>
           {metric.unit === "$" ? `$${fmtNum(+displayValue)}` : metric.unit === "%" ? `${displayValue}%` : `${fmtNum(+displayValue)}`}
-          <span style={{ color: "#475569", fontSize: 10, marginLeft: 4 }}>
+          <span style={{ color: "#64748b", fontSize: 13, marginLeft: 4 }}>
             {metric.aggregate === "avg" ? "avg" : "total"} {metric.unit !== "$" && metric.unit !== "%" ? metric.unit : ""}
           </span>
         </span>
@@ -282,12 +282,12 @@ function AggregateRow({ metric, provision }) {
         {values.map(({ city, val }) => (
           <div key={city} style={{ flex: 1 }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-              <span style={{ color: COLORS[city], fontSize: 9, fontWeight: 700 }}>{city.split(" ")[0]}</span>
-              <span style={{ color: "#94a3b8", fontSize: 9, fontFamily: "monospace" }}>
+              <span style={{ color: COLORS[city], fontSize: 12, fontWeight: 700 }}>{city.split(" ")[0]}</span>
+              <span style={{ color: "#64748b", fontSize: 12, fontFamily: "inherit" }}>
                 {metric.unit === "$" ? `$${fmtNum(val)}` : metric.unit === "%" ? `${val}%` : fmtNum(val)}
               </span>
             </div>
-            <div style={{ height: 6, background: "#0f172a", borderRadius: 3, overflow: "hidden" }}>
+            <div style={{ height: 6, background: "#f1f5f9", borderRadius: 3, overflow: "hidden" }}>
               <div style={{
                 height: "100%", borderRadius: 3, transition: "width 0.6s ease",
                 width: max > 0 ? `${(val / max) * 100}%` : "0%",
@@ -320,13 +320,13 @@ function ProvisionAggregateCard({ provision, expanded, onToggle }) {
     >
       {/* Header row */}
       <div style={{ display: "grid", gridTemplateColumns: "44px 1fr auto auto auto", gap: 12, alignItems: "center", padding: "14px 18px" }}>
-        <div style={{ fontSize: 22, textAlign: "center" }}>{provision.icon}</div>
+        <div style={{ fontSize: 24, textAlign: "center" }}>{provision.icon}</div>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ color: "#38bdf8", fontSize: 11, fontFamily: "monospace", fontWeight: 800 }}>{provision.code}</span>
-            <span style={{ color: "#e2e8f0", fontWeight: 700, fontSize: 14 }}>{provision.name}</span>
+            <span style={{ color: "#0284c7", fontSize: 14, fontFamily: "inherit", fontWeight: 800 }}>{provision.code}</span>
+            <span style={{ color: "#1e293b", fontWeight: 700, fontSize: 16 }}>{provision.name}</span>
           </div>
-          <div style={{ color: "#475569", fontSize: 11, marginTop: 2 }}>{provision.description}</div>
+          <div style={{ color: "#64748b", fontSize: 14, marginTop: 2 }}>{provision.description}</div>
         </div>
 
         {/* Per-city score dots */}
@@ -337,33 +337,33 @@ function ProvisionAggregateCard({ provision, expanded, onToggle }) {
               background: scoreColor(provision.scores[c]) + "20",
               border: `2px solid ${scoreColor(provision.scores[c])}`,
               display: "flex", alignItems: "center", justifyContent: "center",
-              color: scoreColor(provision.scores[c]), fontSize: 9, fontWeight: 800, fontFamily: "monospace"
+              color: scoreColor(provision.scores[c]), fontSize: 12, fontWeight: 800, fontFamily: "inherit"
             }}>{provision.scores[c]}</div>
           ))}
         </div>
 
         <div style={{ textAlign: "right" }}>
-          <div style={{ color: "#475569", fontSize: 10 }}>Total Cost</div>
-          <div style={{ color: "#94a3b8", fontFamily: "monospace", fontWeight: 700, fontSize: 13 }}>{fmtCost(totalCost)}</div>
+          <div style={{ color: "#64748b", fontSize: 13 }}>Total Cost</div>
+          <div style={{ color: "#64748b", fontFamily: "inherit", fontWeight: 700, fontSize: 15 }}>{fmtCost(totalCost)}</div>
         </div>
 
         <div style={{ width: 48, height: 48, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
-          background: `conic-gradient(${scoreColor(avg)} ${avg * 3.6}deg, #0f172a ${avg * 3.6}deg)`,
-          boxShadow: `0 0 0 2px #0b1527, 0 0 0 3px ${scoreColor(avg)}40`,
+          background: `conic-gradient(${scoreColor(avg)} ${avg * 3.6}deg, #f1f5f9 ${avg * 3.6}deg)`,
+          boxShadow: `0 0 0 2px #ffffff, 0 0 0 3px ${scoreColor(avg)}80`,
         }}>
-          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#0b1527",
+          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#ffffff",
             display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ color: scoreColor(avg), fontFamily: "monospace", fontWeight: 900, fontSize: 13 }}>{avg}</span>
+            <span style={{ color: scoreColor(avg), fontFamily: "inherit", fontWeight: 900, fontSize: 15 }}>{avg}</span>
           </div>
         </div>
       </div>
 
       {/* Expanded aggregate detail */}
       {expanded && (
-        <div style={{ borderTop: "1px solid #1a2d46", padding: "20px 18px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+        <div style={{ borderTop: "1px solid #e2e8f0", padding: "20px 18px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
           {/* Left: Aggregate metrics */}
           <div>
-            <div style={{ color: "#38bdf8", fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>
+            <div style={{ color: "#0284c7", fontSize: 14, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>
               ◈ Aggregated Outcomes — All 4 Cities Combined
             </div>
             {provision.aggregateMetrics.map((m, i) => (
@@ -373,22 +373,22 @@ function ProvisionAggregateCard({ provision, expanded, onToggle }) {
 
           {/* Right: City-by-city notes + cost breakdown */}
           <div>
-            <div style={{ color: "#a78bfa", fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>
+            <div style={{ color: "#7c3aed", fontSize: 14, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>
               ◈ City Detail
             </div>
             {CITY_NAMES.map(c => (
-              <div key={c} style={{ marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid #131f30" }}>
+              <div key={c} style={{ marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid #e8eef5" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
                   <div style={{ display: "flex", gap: 7, alignItems: "center" }}>
                     <div style={{ width: 8, height: 8, borderRadius: "50%", background: COLORS[c] }} />
-                    <span style={{ color: "#e2e8f0", fontWeight: 700, fontSize: 12 }}>{c}</span>
+                    <span style={{ color: "#1e293b", fontWeight: 700, fontSize: 14 }}>{c}</span>
                   </div>
                   <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                    <span style={{ color: "#475569", fontSize: 11, fontFamily: "monospace" }}>{fmtCost(provision.costs[c])}</span>
-                    <span style={{ color: scoreColor(provision.scores[c]), fontFamily: "monospace", fontWeight: 800, fontSize: 13 }}>{provision.scores[c]}</span>
+                    <span style={{ color: "#64748b", fontSize: 14, fontFamily: "inherit" }}>{fmtCost(provision.costs[c])}</span>
+                    <span style={{ color: scoreColor(provision.scores[c]), fontFamily: "inherit", fontWeight: 800, fontSize: 15 }}>{provision.scores[c]}</span>
                   </div>
                 </div>
-                <div style={{ color: "#64748b", fontSize: 11, lineHeight: 1.5 }}>{provision.outputs[c].notes}</div>
+                <div style={{ color: "#64748b", fontSize: 14, lineHeight: 1.5 }}>{provision.outputs[c].notes}</div>
               </div>
             ))}
           </div>
@@ -415,15 +415,15 @@ function AggregateSummaryHero() {
   const c3inspections = CITY_NAMES.reduce((s, c) => s + (PROVISIONS.find(p => p.code === "C.3").outputs[c].inspectedCount || 0), 0);
 
   const stats = [
-    { label: "Combined Program Cost", value: fmtCost(totalCost), sub: "FY 2024-25 total", accent: "#38bdf8" },
-    { label: "Cities at 100% Trash Reduction", value: "4 of 4", sub: "all cities compliant", accent: "#34d399" },
-    { label: "Industrial Inspections (C.4)", value: fmtNum(c4total), sub: "inspections across 4 cities", accent: "#a78bfa" },
-    { label: "Discharge Reports Handled (C.5)", value: fmtNum(c5total), sub: "illicit discharge events", accent: "#fbbf24" },
-    { label: "Construction Stormwater Inspections (C.6)", value: fmtNum(c6total), sub: `across ${c6sites} sites monitored`, accent: "#38bdf8" },
-    { label: "Trash Removed (C.10)", value: `${(trashTons).toFixed(1)} tons`, sub: "from creeks & waterways", accent: "#34d399" },
-    { label: "Mercury Disposed (C.11)", value: `${mercuryLbs} lbs`, sub: `${hhwHouseholds} households via HHW`, accent: "#a78bfa" },
-    { label: "Encampments Cleared (C.17)", value: fmtNum(cleanups_C17), sub: `+ ${housingPlacements} housing placements`, accent: "#fbbf24" },
-    { label: "Regulated LID Projects (C.3)", value: fmtNum(c3inventory), sub: `${c3inspections} O&M inspections`, accent: "#38bdf8" },
+    { label: "Combined Program Cost", value: fmtCost(totalCost), sub: "FY 2024-25 total", accent: "#0284c7" },
+    { label: "Cities at 100% Trash Reduction", value: "4 of 4", sub: "all cities compliant", accent: "#059669" },
+    { label: "Industrial Inspections (C.4)", value: fmtNum(c4total), sub: "inspections across 4 cities", accent: "#7c3aed" },
+    { label: "Discharge Reports Handled (C.5)", value: fmtNum(c5total), sub: "illicit discharge events", accent: "#d97706" },
+    { label: "Construction Stormwater Inspections (C.6)", value: fmtNum(c6total), sub: `across ${c6sites} sites monitored`, accent: "#0284c7" },
+    { label: "Trash Removed (C.10)", value: `${(trashTons).toFixed(1)} tons`, sub: "from creeks & waterways", accent: "#059669" },
+    { label: "Mercury Disposed (C.11)", value: `${mercuryLbs} lbs`, sub: `${hhwHouseholds} households via HHW`, accent: "#7c3aed" },
+    { label: "Encampments Cleared (C.17)", value: fmtNum(cleanups_C17), sub: `+ ${housingPlacements} housing placements`, accent: "#d97706" },
+    { label: "Regulated LID Projects (C.3)", value: fmtNum(c3inventory), sub: `${c3inspections} O&M inspections`, accent: "#0284c7" },
   ];
 
   return (
@@ -431,12 +431,12 @@ function AggregateSummaryHero() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
         {stats.map((s, i) => (
           <div key={i} style={{
-            background: "#0b1527", border: `1px solid #131f30`,
-            borderTop: `2px solid ${s.accent}33`, borderRadius: 10, padding: "14px 18px",
+            background: "#ffffff", border: `1px solid #131f30`,
+            borderTop: `3px solid ${s.accent}88`, borderRadius: 10, padding: "14px 18px",
           }}>
-            <div style={{ color: "#475569", fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 6 }}>{s.label}</div>
-            <div style={{ color: s.accent, fontFamily: "monospace", fontWeight: 900, fontSize: 22, lineHeight: 1 }}>{s.value}</div>
-            <div style={{ color: "#334155", fontSize: 11, marginTop: 4 }}>{s.sub}</div>
+            <div style={{ color: "#64748b", fontSize: 13, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 6 }}>{s.label}</div>
+            <div style={{ color: s.accent, fontFamily: "inherit", fontWeight: 900, fontSize: 24, lineHeight: 1 }}>{s.value}</div>
+            <div style={{ color: "#475569", fontSize: 14, marginTop: 4 }}>{s.sub}</div>
           </div>
         ))}
       </div>
@@ -453,25 +453,25 @@ function CitySummaryPanel() {
         const pcc = Math.round(CITY_META[c].totalCost / CITY_META[c].pop);
         return (
           <div key={c} style={{
-            background: "#0b1527", border: `1px solid ${COLORS[c]}22`,
+            background: "#ffffff", border: `1px solid ${COLORS[c]}22`,
             borderRadius: 12, padding: 18,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
               <div style={{ width: 10, height: 10, borderRadius: "50%", background: COLORS[c] }} />
-              <span style={{ color: "#e2e8f0", fontWeight: 800, fontSize: 15 }}>{c}</span>
+              <span style={{ color: "#1e293b", fontWeight: 800, fontSize: 17 }}>{c}</span>
             </div>
-            <div style={{ color: scoreColor(score), fontFamily: "monospace", fontWeight: 900, fontSize: 36 }}>{score}</div>
-            <div style={{ color: "#475569", fontSize: 11, marginBottom: 10 }}>avg compliance score</div>
-            <div style={{ color: COLORS[c], fontFamily: "monospace", fontWeight: 700, fontSize: 14 }}>{fmtCost(CITY_META[c].totalCost)}</div>
-            <div style={{ color: "#475569", fontSize: 11 }}>total program cost</div>
-            <div style={{ marginTop: 10, padding: "8px 0", borderTop: "1px solid #1a2d46", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
+            <div style={{ color: scoreColor(score), fontFamily: "inherit", fontWeight: 900, fontSize: 38 }}>{score}</div>
+            <div style={{ color: "#64748b", fontSize: 14, marginBottom: 10 }}>avg compliance score</div>
+            <div style={{ color: COLORS[c], fontFamily: "inherit", fontWeight: 700, fontSize: 16 }}>{fmtCost(CITY_META[c].totalCost)}</div>
+            <div style={{ color: "#64748b", fontSize: 14 }}>total program cost</div>
+            <div style={{ marginTop: 10, padding: "8px 0", borderTop: "1px solid #e2e8f0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
               <div>
-                <div style={{ color: "#e2e8f0", fontFamily: "monospace", fontWeight: 700 }}>${pcc}</div>
-                <div style={{ color: "#334155", fontSize: 10 }}>per capita</div>
+                <div style={{ color: "#1e293b", fontFamily: "inherit", fontWeight: 700 }}>${pcc}</div>
+                <div style={{ color: "#475569", fontSize: 13 }}>per capita</div>
               </div>
               <div>
-                <div style={{ color: "#e2e8f0", fontFamily: "monospace", fontWeight: 700 }}>{CITY_META[c].pop.toLocaleString()}</div>
-                <div style={{ color: "#334155", fontSize: 10 }}>population</div>
+                <div style={{ color: "#1e293b", fontFamily: "inherit", fontWeight: 700 }}>{CITY_META[c].pop.toLocaleString()}</div>
+                <div style={{ color: "#475569", fontSize: 13 }}>population</div>
               </div>
             </div>
           </div>
@@ -499,10 +499,10 @@ function CompareCharts() {
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
     return (
-      <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 8, padding: "10px 14px" }}>
-        <div style={{ color: "#64748b", fontSize: 11, marginBottom: 4 }}>{label}</div>
+      <div style={{ background: "#f1f5f9", border: "1px solid #1e293b", borderRadius: 8, padding: "10px 14px" }}>
+        <div style={{ color: "#64748b", fontSize: 14, marginBottom: 4 }}>{label}</div>
         {payload.map(p => p.name !== "avg" && (
-          <div key={p.name} style={{ color: COLORS[p.name] || "#94a3b8", fontSize: 12, fontWeight: 700 }}>
+          <div key={p.name} style={{ color: COLORS[p.name] || "#94a3b8", fontSize: 14, fontWeight: 700 }}>
             {p.name}: {p.value}{typeof p.value === "number" && p.dataKey !== "avg" ? "" : ""}
           </div>
         ))}
@@ -512,29 +512,29 @@ function CompareCharts() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div style={{ background: "#0b1527", border: "1px solid #131f30", borderRadius: 14, padding: 20 }}>
-        <div style={{ color: "#e2e8f0", fontWeight: 700, fontSize: 14, marginBottom: 16 }}>Compliance Scores by Provision — All Cities</div>
+      <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 20 }}>
+        <div style={{ color: "#1e293b", fontWeight: 700, fontSize: 16, marginBottom: 16 }}>Compliance Scores by Provision — All Cities</div>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={scoreData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="2 4" stroke="#1e293b" />
-            <XAxis dataKey="code" tick={{ fill: "#475569", fontSize: 10, fontFamily: "monospace" }} />
-            <YAxis domain={[70, 100]} tick={{ fill: "#475569", fontSize: 10 }} />
+            <XAxis dataKey="code" tick={{ fill: "#475569", fontSize: 13, fontFamily: "inherit" }} />
+            <YAxis domain={[70, 100]} tick={{ fill: "#475569", fontSize: 13 }} />
             <Tooltip content={<CustomTooltip />} />
-            <Legend wrapperStyle={{ color: "#64748b", fontSize: 11 }} />
+            <Legend wrapperStyle={{ color: "#64748b", fontSize: 14 }} />
             {CITY_NAMES.map(c => <Bar key={c} dataKey={c} fill={COLORS[c]} radius={[3,3,0,0]} />)}
           </BarChart>
         </ResponsiveContainer>
       </div>
 
-      <div style={{ background: "#0b1527", border: "1px solid #131f30", borderRadius: 14, padding: 20 }}>
-        <div style={{ color: "#e2e8f0", fontWeight: 700, fontSize: 14, marginBottom: 16 }}>Program Cost by Provision ($K)</div>
+      <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 20 }}>
+        <div style={{ color: "#1e293b", fontWeight: 700, fontSize: 16, marginBottom: 16 }}>Program Cost by Provision ($K)</div>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={costData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="2 4" stroke="#1e293b" />
-            <XAxis dataKey="code" tick={{ fill: "#475569", fontSize: 10, fontFamily: "monospace" }} />
-            <YAxis tick={{ fill: "#475569", fontSize: 10 }} tickFormatter={v => `$${v}K`} />
+            <XAxis dataKey="code" tick={{ fill: "#475569", fontSize: 13, fontFamily: "inherit" }} />
+            <YAxis tick={{ fill: "#475569", fontSize: 13 }} tickFormatter={v => `$${v}K`} />
             <Tooltip content={<CustomTooltip />} formatter={(v) => [`$${v}K`]} />
-            <Legend wrapperStyle={{ color: "#64748b", fontSize: 11 }} />
+            <Legend wrapperStyle={{ color: "#64748b", fontSize: 14 }} />
             {CITY_NAMES.map(c => <Bar key={c} dataKey={c} fill={COLORS[c]} radius={[3,3,0,0]} />)}
           </BarChart>
         </ResponsiveContainer>
@@ -558,33 +558,33 @@ export default function App() {
 
   return (
     <div style={{
-      minHeight: "100vh", background: "#060e1a", color: "#cbd5e1",
-      fontFamily: "'IBM Plex Mono', 'JetBrains Mono', 'Fira Code', monospace",
+      minHeight: "100vh", background: "#f0f4f8", color: "#475569",
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
     }}>
       {/* Top bar */}
       <div style={{
-        background: "#08111e", borderBottom: "1px solid #0f1e33",
+        background: "#ffffff", borderBottom: "1px solid #0f1e33",
         position: "sticky", top: 0, zIndex: 100, padding: "0 28px",
       }}>
         <div style={{ maxWidth: 1300, margin: "0 auto", height: 60, display: "flex", alignItems: "center", gap: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <svg width="32" height="32" viewBox="0 0 32 32">
-              <polygon points="16,2 30,9 30,23 16,30 2,23 2,9" fill="none" stroke="#38bdf8" strokeWidth="1.5" />
-              <polygon points="16,8 24,12 24,20 16,24 8,20 8,12" fill="#38bdf822" stroke="#38bdf855" strokeWidth="1" />
+              <polygon points="16,2 30,9 30,23 16,30 2,23 2,9" fill="none" stroke="#0284c7" strokeWidth="1.5" />
+              <polygon points="16,8 24,12 24,20 16,24 8,20 8,12" fill="#0284c715" stroke="#0284c740" strokeWidth="1" />
             </svg>
             <div>
-              <div style={{ color: "#e2e8f0", fontWeight: 900, fontSize: 14, letterSpacing: "0.05em" }}>STORMWATER IQ</div>
-              <div style={{ color: "#334155", fontSize: 9, letterSpacing: "0.12em" }}>NPDES MRP FY 2024-25 · SANTA CLARA COUNTY · 4 PERMITTEES</div>
+              <div style={{ color: "#1e293b", fontWeight: 900, fontSize: 16, letterSpacing: "0.05em" }}>STORMWATER IQ</div>
+              <div style={{ color: "#475569", fontSize: 12, letterSpacing: "0.12em" }}>NPDES MRP FY 2024-25 · SANTA CLARA COUNTY · 4 PERMITTEES</div>
             </div>
           </div>
 
           <div style={{ display: "flex", gap: 2, marginLeft: 24 }}>
             {tabs.map(t => (
               <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
-                background: activeTab === t.id ? "#38bdf820" : "transparent",
-                border: activeTab === t.id ? "1px solid #38bdf840" : "1px solid transparent",
-                color: activeTab === t.id ? "#38bdf8" : "#475569",
-                borderRadius: 8, padding: "6px 16px", fontSize: 11, fontWeight: 700,
+                background: activeTab === t.id ? "#0284c715" : "transparent",
+                border: activeTab === t.id ? "1px solid #0284c740" : "1px solid transparent",
+                color: activeTab === t.id ? "#0284c7" : "#475569",
+                borderRadius: 8, padding: "6px 16px", fontSize: 14, fontWeight: 700,
                 cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.04em", transition: "all 0.15s",
               }}>{t.label}</button>
             ))}
@@ -595,9 +595,9 @@ export default function App() {
               <div key={c} style={{ textAlign: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                   <div style={{ width: 5, height: 5, borderRadius: "50%", background: COLORS[c] }} />
-                  <span style={{ color: "#334155", fontSize: 10 }}>{c.split(" ")[0]}</span>
+                  <span style={{ color: "#475569", fontSize: 13 }}>{c.split(" ")[0]}</span>
                 </div>
-                <div style={{ color: scoreColor(overallCityScore(c)), fontFamily: "monospace", fontWeight: 900, fontSize: 14 }}>
+                <div style={{ color: scoreColor(overallCityScore(c)), fontFamily: "inherit", fontWeight: 900, fontSize: 16 }}>
                   {overallCityScore(c)}
                 </div>
               </div>
@@ -611,7 +611,7 @@ export default function App() {
           <>
             <AggregateSummaryHero />
             <div style={{ marginBottom: 16 }}>
-              <div style={{ color: "#334155", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>
+              <div style={{ color: "#475569", fontSize: 14, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>
                 Click any provision to see aggregated outcomes across all 4 cities
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -640,34 +640,34 @@ export default function App() {
             <CitySummaryPanel />
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               {CITY_NAMES.map(c => (
-                <div key={c} style={{ background: "#0b1527", border: `1px solid ${COLORS[c]}22`, borderRadius: 14, padding: 20 }}>
+                <div key={c} style={{ background: "#ffffff", border: `1px solid ${COLORS[c]}22`, borderRadius: 14, padding: 20 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
                     <div style={{ width: 10, height: 10, borderRadius: "50%", background: COLORS[c] }} />
-                    <span style={{ color: "#e2e8f0", fontWeight: 800, fontSize: 16 }}>City of {c}</span>
-                    <span style={{ marginLeft: "auto", color: scoreColor(overallCityScore(c)), fontFamily: "monospace", fontWeight: 900, fontSize: 22 }}>
+                    <span style={{ color: "#1e293b", fontWeight: 800, fontSize: 18 }}>City of {c}</span>
+                    <span style={{ marginLeft: "auto", color: scoreColor(overallCityScore(c)), fontFamily: "inherit", fontWeight: 900, fontSize: 24 }}>
                       {overallCityScore(c)}
                     </span>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     {PROVISIONS.map(p => (
                       <div key={p.code} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <span style={{ color: "#38bdf8", fontFamily: "monospace", fontSize: 10, width: 28 }}>{p.code}</span>
-                        <div style={{ flex: 1, height: 5, background: "#0f172a", borderRadius: 3, overflow: "hidden" }}>
+                        <span style={{ color: "#0284c7", fontFamily: "inherit", fontSize: 13, width: 28 }}>{p.code}</span>
+                        <div style={{ flex: 1, height: 5, background: "#f1f5f9", borderRadius: 3, overflow: "hidden" }}>
                           <div style={{ height: "100%", width: `${p.scores[c]}%`, background: scoreColor(p.scores[c]), borderRadius: 3 }} />
                         </div>
-                        <span style={{ color: scoreColor(p.scores[c]), fontFamily: "monospace", fontSize: 11, fontWeight: 700, width: 24 }}>{p.scores[c]}</span>
-                        <span style={{ color: "#1e3a5f", fontSize: 10, width: 48, textAlign: "right" }}>{fmtCost(p.costs[c])}</span>
+                        <span style={{ color: scoreColor(p.scores[c]), fontFamily: "inherit", fontSize: 14, fontWeight: 700, width: 24 }}>{p.scores[c]}</span>
+                        <span style={{ color: "#94a3b8", fontSize: 13, width: 48, textAlign: "right" }}>{fmtCost(p.costs[c])}</span>
                       </div>
                     ))}
                   </div>
-                  <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid #131f30", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid #e2e8f0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                     <div>
-                      <div style={{ color: COLORS[c], fontFamily: "monospace", fontWeight: 800, fontSize: 16 }}>{fmtCost(CITY_META[c].totalCost)}</div>
-                      <div style={{ color: "#334155", fontSize: 10 }}>total program cost</div>
+                      <div style={{ color: COLORS[c], fontFamily: "inherit", fontWeight: 800, fontSize: 18 }}>{fmtCost(CITY_META[c].totalCost)}</div>
+                      <div style={{ color: "#475569", fontSize: 13 }}>total program cost</div>
                     </div>
                     <div>
-                      <div style={{ color: "#94a3b8", fontFamily: "monospace", fontWeight: 700, fontSize: 14 }}>${Math.round(CITY_META[c].totalCost / CITY_META[c].pop)}/capita</div>
-                      <div style={{ color: "#334155", fontSize: 10 }}>cost per resident</div>
+                      <div style={{ color: "#64748b", fontFamily: "inherit", fontWeight: 700, fontSize: 16 }}>${Math.round(CITY_META[c].totalCost / CITY_META[c].pop)}/capita</div>
+                      <div style={{ color: "#475569", fontSize: 13 }}>cost per resident</div>
                     </div>
                   </div>
                 </div>
