@@ -287,9 +287,9 @@ function AggregateRow({ metric, provision }) {
                 {metric.unit === "$" ? `$${fmtNum(val)}` : metric.unit === "%" ? `${val}%` : fmtNum(val)}
               </span>
             </div>
-            <div style={{ height: 6, background: "#f1f5f9", borderRadius: 3, overflow: "hidden" }}>
+            <div style={{ height: 8, background: "#e2e8f0", borderRadius: 4, overflow: "hidden" }}>
               <div style={{
-                height: "100%", borderRadius: 3, transition: "width 0.6s ease",
+                height: "100%", borderRadius: 4, transition: "width 0.6s ease",
                 width: max > 0 ? `${(val / max) * 100}%` : "0%",
                 background: COLORS[city],
               }} />
@@ -310,31 +310,32 @@ function ProvisionAggregateCard({ provision, expanded, onToggle }) {
     <div
       onClick={onToggle}
       style={{
-        background: expanded ? "#0f1e33" : "#0b1527",
-        border: `1px solid ${expanded ? "#1e3a5f" : "#131f30"}`,
-        borderLeft: `3px solid ${scoreColor(avg)}`,
+        background: expanded ? "#f0f7ff" : "#ffffff",
+        border: `1px solid ${expanded ? "#bfdbfe" : "#e2e8f0"}`,
+        borderLeft: `4px solid ${scoreColor(avg)}`,
         borderRadius: 12, cursor: "pointer",
         transition: "all 0.2s ease",
         overflow: "hidden",
+        boxShadow: expanded ? "0 2px 12px rgba(0,0,0,0.08)" : "0 1px 4px rgba(0,0,0,0.04)",
       }}
     >
       {/* Header row */}
-      <div style={{ display: "grid", gridTemplateColumns: "44px 1fr auto auto auto", gap: 12, alignItems: "center", padding: "14px 18px" }}>
-        <div style={{ fontSize: 24, textAlign: "center" }}>{provision.icon}</div>
+      <div style={{ display: "grid", gridTemplateColumns: "52px 1fr auto auto auto", gap: 14, alignItems: "center", padding: "18px 22px" }}>
+        <div style={{ fontSize: 28, textAlign: "center" }}>{provision.icon}</div>
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ color: "#0284c7", fontSize: 14, fontFamily: "inherit", fontWeight: 800 }}>{provision.code}</span>
-            <span style={{ color: "#1e293b", fontWeight: 700, fontSize: 16 }}>{provision.name}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ color: "#0284c7", fontSize: 15, fontFamily: "inherit", fontWeight: 800, background: "#e0f2fe", padding: "2px 8px", borderRadius: 6 }}>{provision.code}</span>
+            <span style={{ color: "#1e293b", fontWeight: 700, fontSize: 18 }}>{provision.name}</span>
           </div>
-          <div style={{ color: "#64748b", fontSize: 14, marginTop: 2 }}>{provision.description}</div>
+          <div style={{ color: "#64748b", fontSize: 14, marginTop: 5, lineHeight: 1.5 }}>{provision.description}</div>
         </div>
 
         {/* Per-city score dots */}
-        <div style={{ display: "flex", gap: 5 }}>
+        <div style={{ display: "flex", gap: 6 }}>
           {CITY_NAMES.map(c => (
             <div key={c} title={`${c}: ${provision.scores[c]}`} style={{
-              width: 28, height: 28, borderRadius: "50%",
-              background: scoreColor(provision.scores[c]) + "20",
+              width: 36, height: 36, borderRadius: "50%",
+              background: scoreColor(provision.scores[c]) + "15",
               border: `2px solid ${scoreColor(provision.scores[c])}`,
               display: "flex", alignItems: "center", justifyContent: "center",
               color: scoreColor(provision.scores[c]), fontSize: 12, fontWeight: 800, fontFamily: "inherit"
@@ -343,52 +344,52 @@ function ProvisionAggregateCard({ provision, expanded, onToggle }) {
         </div>
 
         <div style={{ textAlign: "right" }}>
-          <div style={{ color: "#64748b", fontSize: 13 }}>Total Cost</div>
-          <div style={{ color: "#64748b", fontFamily: "inherit", fontWeight: 700, fontSize: 15 }}>{fmtCost(totalCost)}</div>
+          <div style={{ color: "#94a3b8", fontSize: 13 }}>Total Cost</div>
+          <div style={{ color: "#1e293b", fontFamily: "inherit", fontWeight: 700, fontSize: 16 }}>{fmtCost(totalCost)}</div>
         </div>
 
-        <div style={{ width: 48, height: 48, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
-          background: `conic-gradient(${scoreColor(avg)} ${avg * 3.6}deg, #f1f5f9 ${avg * 3.6}deg)`,
-          boxShadow: `0 0 0 2px #ffffff, 0 0 0 3px ${scoreColor(avg)}80`,
+        <div style={{ width: 56, height: 56, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+          background: `conic-gradient(${scoreColor(avg)} ${avg * 3.6}deg, #e2e8f0 ${avg * 3.6}deg)`,
+          boxShadow: `0 0 0 2px #ffffff, 0 0 0 3px ${scoreColor(avg)}60`,
         }}>
-          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#ffffff",
+          <div style={{ width: 42, height: 42, borderRadius: "50%", background: "#ffffff",
             display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ color: scoreColor(avg), fontFamily: "inherit", fontWeight: 900, fontSize: 15 }}>{avg}</span>
+            <span style={{ color: scoreColor(avg), fontFamily: "inherit", fontWeight: 900, fontSize: 16 }}>{avg}</span>
           </div>
         </div>
       </div>
 
       {/* Expanded aggregate detail */}
       {expanded && (
-        <div style={{ borderTop: "1px solid #e2e8f0", padding: "20px 18px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+        <div style={{ borderTop: "1px solid #e2e8f0", padding: "24px 22px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28, background: "#f8fafc" }}>
           {/* Left: Aggregate metrics */}
           <div>
-            <div style={{ color: "#0284c7", fontSize: 14, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>
-              ◈ Aggregated Outcomes — All 4 Cities Combined
+            <div style={{ color: "#0284c7", fontSize: 13, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 16 }}>◈</span> Aggregated Outcomes — All 4 Cities Combined
             </div>
             {provision.aggregateMetrics.map((m, i) => (
               <AggregateRow key={i} metric={m} provision={provision} />
             ))}
           </div>
 
-          {/* Right: City-by-city notes + cost breakdown */}
+          {/* Right: City-by-city notes */}
           <div>
-            <div style={{ color: "#7c3aed", fontSize: 14, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>
-              ◈ City Detail
+            <div style={{ color: "#7c3aed", fontSize: 13, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 16 }}>◈</span> City Detail
             </div>
             {CITY_NAMES.map(c => (
-              <div key={c} style={{ marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid #e8eef5" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
-                  <div style={{ display: "flex", gap: 7, alignItems: "center" }}>
-                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: COLORS[c] }} />
-                    <span style={{ color: "#1e293b", fontWeight: 700, fontSize: 14 }}>{c}</span>
+              <div key={c} style={{ marginBottom: 16, paddingBottom: 16, borderBottom: "1px solid #e2e8f0" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <div style={{ width: 10, height: 10, borderRadius: "50%", background: COLORS[c] }} />
+                    <span style={{ color: "#1e293b", fontWeight: 700, fontSize: 15 }}>{c}</span>
                   </div>
-                  <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                  <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
                     <span style={{ color: "#64748b", fontSize: 14, fontFamily: "inherit" }}>{fmtCost(provision.costs[c])}</span>
-                    <span style={{ color: scoreColor(provision.scores[c]), fontFamily: "inherit", fontWeight: 800, fontSize: 15 }}>{provision.scores[c]}</span>
+                    <span style={{ color: scoreColor(provision.scores[c]), fontFamily: "inherit", fontWeight: 800, fontSize: 15, background: scoreColor(provision.scores[c]) + "15", padding: "1px 8px", borderRadius: 6 }}>{provision.scores[c]}</span>
                   </div>
                 </div>
-                <div style={{ color: "#64748b", fontSize: 14, lineHeight: 1.5 }}>{provision.outputs[c].notes}</div>
+                <div style={{ color: "#475569", fontSize: 14, lineHeight: 1.6 }}>{provision.outputs[c].notes}</div>
               </div>
             ))}
           </div>
@@ -431,7 +432,7 @@ function AggregateSummaryHero() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
         {stats.map((s, i) => (
           <div key={i} style={{
-            background: "#ffffff", border: `1px solid #131f30`,
+            background: "#ffffff", border: `1px solid #e2e8f0`,
             borderTop: `3px solid ${s.accent}88`, borderRadius: 10, padding: "14px 18px",
           }}>
             <div style={{ color: "#64748b", fontSize: 13, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 6 }}>{s.label}</div>
@@ -563,7 +564,7 @@ export default function App() {
     }}>
       {/* Top bar */}
       <div style={{
-        background: "#ffffff", borderBottom: "1px solid #0f1e33",
+        background: "#ffffff", borderBottom: "1px solid #e2e8f0",
         position: "sticky", top: 0, zIndex: 100, padding: "0 28px",
       }}>
         <div style={{ maxWidth: 1300, margin: "0 auto", height: 60, display: "flex", alignItems: "center", gap: 20 }}>
