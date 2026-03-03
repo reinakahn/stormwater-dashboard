@@ -544,6 +544,498 @@ function CompareCharts() {
   );
 }
 
+// ─── TRENDS & PREDICTIONS TAB ────────────────────────────────────────────────
+function TrendsTab() {
+  // Cost trend data: FY24-25 actual vs FY25-26 projected (from C.20 cost reports)
+  const costTrend = CITY_NAMES.map(c => ({
+    city: c,
+    fy2425: CITY_META[c].totalCost,
+    fy2526: CITY_META[c].nextCost,
+    changePct: (((CITY_META[c].nextCost - CITY_META[c].totalCost) / CITY_META[c].totalCost) * 100).toFixed(1),
+    changeAbs: CITY_META[c].nextCost - CITY_META[c].totalCost,
+  }));
+
+  // Provision-level cost changes (current → next year)
+  const provCostChanges = PROVISIONS.map(p => {
+    const cur = CITY_NAMES.reduce((s, c) => s + p.costs[c], 0);
+    const nxt = CITY_NAMES.reduce((s, c) => s + p.nextCosts[c], 0);
+    return { code: p.code, name: p.name, icon: p.icon, cur, nxt, pct: (((nxt - cur) / cur) * 100).toFixed(1) };
+  }).sort((a, b) => parseFloat(b.pct) - parseFloat(a.pct));
+
+  // Key compliance trends extracted from report text (year-over-year observations)
+  const complianceTrends = [
+    {
+      provision: "C.4", label: "Industrial Inspection Correction Rate",
+      city: "San Jose", direction: "down", value: "84%", prev: "86%",
+      note: "Timely correction rate declined 2% vs FY 23-24 — 16% of violations not corrected within 10 days",
+      risk: "medium",
+    },
+    {
+      provision: "C.6", label: "Construction Site Corrective Actions",
+      city: "Sunnyvale", direction: "down", value: "<1%", prev: "2.5%",
+      note: "Sites requiring corrective action fell from 2.5% to <1% — multi-year improving trend",
+      risk: "low",
+    },
+    {
+      provision: "C.3", label: "Regulated Project Inventory Growth",
+      city: "San Jose", direction: "up", value: "696", prev: "655",
+      note: "Inventory grew by 41 projects (+6.3%) in one year — inspection capacity under pressure at 24% inspected",
+      risk: "high",
+    },
+    {
+      provision: "C.3", label: "Regulated Project Inventory",
+      city: "Campbell", direction: "up", value: "55", prev: "49",
+      note: "Inventory grew 12% year-over-year after legacy MRP 1.0 projects were added; 49% inspected",
+      risk: "medium",
+    },
+    {
+      provision: "C.10", label: "Full Trash Capture Rate",
+      city: "Sunnyvale", direction: "up", value: "620+", prev: "490",
+      note: "130 new inlet devices installed in FY 24-25 — accelerating toward full capture target",
+      risk: "low",
+    },
+    {
+      provision: "C.17", label: "C.17 Program Cost — San Jose",
+      city: "San Jose", direction: "up", value: "$63.98M", prev: "~$57M est.",
+      note: "C.17 costs rising ~12%/yr, driven by waterway encampment response — no cap in sight without regional funding mechanism",
+      risk: "critical",
+    },
+    {
+      provision: "C.17", label: "Housing Placements via WeHOPE",
+      city: "Sunnyvale", direction: "up", value: "39", prev: "0",
+      note: "New Sep 2024 program already placed 39 individuals in housing — upstream intervention showing early results",
+      risk: "low",
+    },
+    {
+      provision: "C.5", label: "Discharge Resolution Rate",
+      city: "All Cities", direction: "stable", value: "96–100%", prev: "96–100%",
+      note: "All four cities maintaining near-perfect illicit discharge resolution rates — strong baseline",
+      risk: "low",
+    },
+  ];
+
+  // Predictive projections (3-year forward based on current trajectory)
+  const predictions = [
+    {
+      horizon: "FY 2025-26", confidence: "High",
+      title: "San Jose C.17 Costs Exceed $69M",
+      detail: "Projected FY 25-26 C.17 budget is $69.4M (+8.4%). At current trajectory, C.17 will consume 54%+ of San Jose's entire stormwater budget by FY 26-27 without structural intervention.",
+      icon: "📈", risk: "critical",
+      metric: "$69.4M", basis: "FY 25-26 C.20 projection from annual report",
+    },
+    {
+      horizon: "June 30, 2027", confidence: "High",
+      title: "GSI Numeric Retrofit Deadline — Campbell & Saratoga",
+      detail: "MRP 3.0 C.3.j requires numeric impervious area retrofit targets by June 30, 2027. Campbell has Downtown PDA biotreatment underway; Saratoga has only 1 project inspected of 5. Both face deadline risk without immediate project identification.",
+      icon: "⏰", risk: "critical",
+      metric: "2 yrs", basis: "C.3.j.v.(3) Numeric Retrofit Requirements — all four annual reports",
+    },
+    {
+      horizon: "FY 2026-27", confidence: "Medium",
+      title: "San Jose C.3 Inspection Backlog Reaches Crisis Point",
+      detail: "With 696 projects in inventory and only 161 inspected (24%), adding ~40 projects/yr means uninspected inventory grows faster than inspection capacity. Projected 800+ project backlog by FY 26-27 without additional inspector resources.",
+      icon: "🔍", risk: "high",
+      metric: "800+ projects", basis: "C.3 O&M inspection table — San Jose annual report",
+    },
+    {
+      horizon: "FY 2025-26", confidence: "High",
+      title: "All 4 Cities Maintain 100% Trash Reduction",
+      detail: "Full trash capture infrastructure is largely in place across all cities. Campbell leads at 72.6% full capture; all are on trajectory to maintain 100% reduction compliance. No significant compliance risk anticipated.",
+      icon: "♻", risk: "low",
+      metric: "100%", basis: "C.10 trash reduction tables — all four annual reports",
+    },
+    {
+      horizon: "FY 2025-26", confidence: "Medium",
+      title: "Sunnyvale Bacteria (C.14) Source Identification Breakthrough Possible",
+      detail: "130 inlet screens installed in FY 24-25 (620+ total). If FIB source identification efforts isolate primary sources in FY 25-26, targeted remediation could significantly reduce bacteria loading in impaired segments.",
+      icon: "🧫", risk: "medium",
+      metric: "620+ screens", basis: "C.14 bacteria control — Sunnyvale annual report",
+    },
+    {
+      horizon: "2026-2028", confidence: "Low-Medium",
+      title: "Regional Homeless Discharge Cost Sharing Under Pressure",
+      detail: "San Jose bears 97%+ of all C.17 costs among these four cities despite regional waterway connectivity. ERF Round 3 grant ($4.8M) provides temporary relief. Without a regional cost-sharing framework, fiscal pressure is unsustainable.",
+      icon: "🏠", risk: "high",
+      metric: "97% cost share", basis: "C.17 cost reporting — all four annual reports",
+    },
+  ];
+
+  const riskColor = { critical: "#dc2626", high: "#ea580c", medium: "#d97706", low: "#059669" };
+  const riskBg = { critical: "#fef2f2", high: "#fff7ed", medium: "#fffbeb", low: "#f0fdf4" };
+  const riskBorder = { critical: "#fecaca", high: "#fed7aa", medium: "#fde68a", low: "#bbf7d0" };
+  const dirIcon = { up: "↑", down: "↓", stable: "→" };
+  const dirColor = (t, dir) => dir === "up" ? (t.risk === "low" ? "#059669" : "#ea580c") : dir === "down" ? (t.risk === "low" ? "#059669" : "#dc2626") : "#64748b";
+
+  const costBarData = PROVISIONS.map(p => {
+    const cur = CITY_NAMES.reduce((s, c) => s + p.costs[c], 0);
+    const nxt = CITY_NAMES.reduce((s, c) => s + p.nextCosts[c], 0);
+    return { name: p.code, "FY 24-25": Math.round(cur/1000), "FY 25-26 Proj": Math.round(nxt/1000) };
+  });
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+
+      {/* City cost trajectory */}
+      <div>
+        <h2 style={{ color: "#1e293b", fontSize: 22, fontWeight: 800, margin: "0 0 6px" }}>Cost Trajectory — FY 24-25 → FY 25-26</h2>
+        <p style={{ color: "#64748b", fontSize: 15, margin: "0 0 18px" }}>Actual vs. projected program costs from each city's C.20 cost reporting section</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 20 }}>
+          {costTrend.map(ct => (
+            <div key={ct.city} style={{ background: "#ffffff", border: `1px solid #e2e8f0`, borderTop: `3px solid ${COLORS[ct.city]}`, borderRadius: 12, padding: 18 }}>
+              <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
+                <div style={{ width: 10, height: 10, borderRadius: "50%", background: COLORS[ct.city] }} />
+                <span style={{ color: "#1e293b", fontWeight: 700, fontSize: 15 }}>{ct.city}</span>
+              </div>
+              <div style={{ color: "#64748b", fontSize: 13, marginBottom: 4 }}>FY 24-25 Actual</div>
+              <div style={{ color: "#1e293b", fontWeight: 800, fontSize: 20, marginBottom: 8 }}>{fmtCost(ct.fy2425)}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ flex: 1, height: 6, background: "#e2e8f0", borderRadius: 3 }}>
+                  <div style={{ height: "100%", width: `${(ct.fy2425 / ct.fy2526) * 100}%`, background: COLORS[ct.city], borderRadius: 3 }} />
+                </div>
+              </div>
+              <div style={{ color: "#64748b", fontSize: 13, marginTop: 8, marginBottom: 2 }}>FY 25-26 Projected</div>
+              <div style={{ color: COLORS[ct.city], fontWeight: 800, fontSize: 18 }}>{fmtCost(ct.fy2526)}</div>
+              <div style={{ marginTop: 8, display: "inline-flex", alignItems: "center", gap: 4, background: parseFloat(ct.changePct) > 5 ? "#fff7ed" : "#f0fdf4", border: `1px solid ${parseFloat(ct.changePct) > 5 ? "#fed7aa" : "#bbf7d0"}`, borderRadius: 20, padding: "3px 10px" }}>
+                <span style={{ color: parseFloat(ct.changePct) > 5 ? "#ea580c" : "#059669", fontWeight: 700, fontSize: 14 }}>
+                  ↑ +{ct.changePct}% (+{fmtCost(ct.changeAbs)})
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Provision cost change bar chart */}
+        <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 22 }}>
+          <div style={{ color: "#1e293b", fontWeight: 700, fontSize: 16, marginBottom: 4 }}>Provision-Level Budget Changes (All Cities Combined, $K)</div>
+          <div style={{ color: "#64748b", fontSize: 14, marginBottom: 16 }}>Comparing FY 24-25 actuals vs FY 25-26 projections — largest increases signal where costs are accelerating</div>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={costBarData} margin={{ top: 0, right: 0, left: -10, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="2 4" stroke="#f1f5f9" />
+              <XAxis dataKey="name" tick={{ fill: "#64748b", fontSize: 13 }} />
+              <YAxis tick={{ fill: "#64748b", fontSize: 12 }} tickFormatter={v => `$${v}K`} />
+              <Tooltip formatter={(v) => [`$${v.toLocaleString()}K`]} contentStyle={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13 }} />
+              <Legend wrapperStyle={{ fontSize: 13 }} />
+              <Bar dataKey="FY 24-25" fill="#0284c7" radius={[4,4,0,0]} />
+              <Bar dataKey="FY 25-26 Proj" fill="#7c3aed" radius={[4,4,0,0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Year-over-year compliance trends */}
+      <div>
+        <h2 style={{ color: "#1e293b", fontSize: 22, fontWeight: 800, margin: "0 0 6px" }}>Year-over-Year Compliance Trends</h2>
+        <p style={{ color: "#64748b", fontSize: 15, margin: "0 0 18px" }}>Directional signals drawn from FY 23-24 vs FY 24-25 comparisons in the annual reports</p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          {complianceTrends.map((t, i) => (
+            <div key={i} style={{ background: riskBg[t.risk], border: `1px solid ${riskBorder[t.risk]}`, borderLeft: `4px solid ${riskColor[t.risk]}`, borderRadius: 12, padding: 18 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                <div>
+                  <span style={{ color: "#0284c7", fontSize: 13, fontWeight: 700, background: "#e0f2fe", padding: "2px 8px", borderRadius: 6, marginRight: 8 }}>{t.provision}</span>
+                  <span style={{ color: "#64748b", fontSize: 13 }}>{t.city}</span>
+                </div>
+                <span style={{ color: riskColor[t.risk], fontSize: 12, fontWeight: 700, background: riskBg[t.risk], border: `1px solid ${riskBorder[t.risk]}`, padding: "2px 10px", borderRadius: 20 }}>
+                  {t.risk.toUpperCase()}
+                </span>
+              </div>
+              <div style={{ color: "#1e293b", fontWeight: 700, fontSize: 15, marginBottom: 6 }}>{t.label}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+                <span style={{ color: "#94a3b8", fontSize: 14 }}>Prior: {t.prev}</span>
+                <span style={{ color: dirColor(t, t.direction), fontWeight: 800, fontSize: 18 }}>{dirIcon[t.direction]}</span>
+                <span style={{ color: "#1e293b", fontSize: 16, fontWeight: 800 }}>Now: {t.value}</span>
+              </div>
+              <div style={{ color: "#475569", fontSize: 14, lineHeight: 1.6 }}>{t.note}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Predictive outlook */}
+      <div>
+        <h2 style={{ color: "#1e293b", fontSize: 22, fontWeight: 800, margin: "0 0 6px" }}>Predictive Outlook</h2>
+        <p style={{ color: "#64748b", fontSize: 15, margin: "0 0 18px" }}>Forward projections based on current trajectories, permit deadlines, and program data</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {predictions.map((p, i) => (
+            <div key={i} style={{ background: "#ffffff", border: `1px solid ${riskBorder[p.risk]}`, borderLeft: `5px solid ${riskColor[p.risk]}`, borderRadius: 12, padding: 20, display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 18, alignItems: "start" }}>
+              <div style={{ fontSize: 32 }}>{p.icon}</div>
+              <div>
+                <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 6 }}>
+                  <span style={{ color: riskColor[p.risk], fontSize: 13, fontWeight: 700, background: riskBg[p.risk], border: `1px solid ${riskBorder[p.risk]}`, padding: "2px 10px", borderRadius: 20 }}>{p.risk.toUpperCase()}</span>
+                  <span style={{ color: "#64748b", fontSize: 13 }}>📅 {p.horizon}</span>
+                  <span style={{ color: "#94a3b8", fontSize: 13 }}>· Confidence: {p.confidence}</span>
+                </div>
+                <div style={{ color: "#1e293b", fontWeight: 800, fontSize: 17, marginBottom: 8 }}>{p.title}</div>
+                <div style={{ color: "#475569", fontSize: 14, lineHeight: 1.7, marginBottom: 8 }}>{p.detail}</div>
+                <div style={{ color: "#94a3b8", fontSize: 12, fontStyle: "italic" }}>Source: {p.basis}</div>
+              </div>
+              <div style={{ textAlign: "center", background: riskBg[p.risk], border: `1px solid ${riskBorder[p.risk]}`, borderRadius: 12, padding: "12px 18px", minWidth: 90 }}>
+                <div style={{ color: riskColor[p.risk], fontWeight: 900, fontSize: 22, lineHeight: 1 }}>{p.metric}</div>
+                <div style={{ color: "#94a3b8", fontSize: 12, marginTop: 4 }}>key metric</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── PRIORITY GAPS TAB ────────────────────────────────────────────────────────
+function GapsTab() {
+  const [selectedCity, setSelectedCity] = useState("All Cities");
+  const cityOptions = ["All Cities", ...CITY_NAMES];
+
+  // Gap data grounded entirely in report findings
+  const gaps = [
+    {
+      id: 1, priority: "critical", cities: ["San Jose"],
+      provision: "C.17", title: "C.17 Fiscal Sustainability — No Regional Cost-Sharing Framework",
+      gap: "San Jose bears $64M (97%+) of all C.17 costs among these four permittees. C.17 now consumes 52% of San Jose's total stormwater budget, crowding out investment in other provisions. No inter-jurisdictional cost mechanism exists despite shared watershed impacts.",
+      evidence: "San Jose C.17 FY 24-25 cost: $63.98M. Next three cities combined: $697K. ERF Round 3 grant ($4.8M) covers <8% of annual gap.",
+      effort: "High", impact: "Very High",
+      actions: [
+        "Convene SCVURPPP member agencies to explore C.17 regional cost-sharing formula tied to watershed contribution",
+        "Apply for additional state ERF and SB 1 funding rounds; target $10M+",
+        "Develop DDTCP cost recovery model — link cleanup contracts to responsible-party billing where possible",
+        "Commission independent fiscal sustainability study for C.17 through FY 2030",
+      ],
+      spend: { current: 63982000, recommended: 70000000, rationale: "Current trajectory +8%/yr; need dedicated regional funding to stabilize" },
+    },
+    {
+      id: 2, priority: "critical", cities: ["Campbell", "Saratoga"],
+      provision: "C.3", title: "GSI Numeric Retrofit Deadline — June 30, 2027",
+      gap: "MRP 3.0 C.3.j requires numeric impervious area retrofit targets be met by June 30, 2027. Campbell has one project underway (Downtown PDA biotreatment); Saratoga has only 1 of 5 projects inspected. Both cities need to urgently identify, design, and begin construction of qualifying GSI projects.",
+      evidence: "Campbell: Downtown PDA biotreatment began construction FY 24-25. Hacienda Ave Green St. ($6.8M, 17.8 acres) not yet credited under MRP 3.0. Saratoga: 20% inspection rate, no standalone GSI retrofit projects identified.",
+      effort: "High", impact: "Very High",
+      actions: [
+        "Campbell: Submit Hacienda Ave Green Street for retroactive MRP 3.0 credit — quantify 17.8 impervious acres treated",
+        "Campbell: Accelerate Downtown PDA biotreatment completion; identify 2nd qualifying project by Q1 FY 25-26",
+        "Saratoga: Complete O&M inspections for all 5 regulated projects by Q2 FY 25-26",
+        "Saratoga: Leverage $5M Village Parking District investment for GSI retrofit credit — confirm eligibility with RWQCB",
+        "Both cities: Request SCVURPPP technical assistance for retrofit project identification and prioritization",
+      ],
+      spend: { current: 854000, recommended: 1500000, rationale: "One-time capital investment in retrofit projects needed; current budget insufficient for 2027 deadline" },
+    },
+    {
+      id: 3, priority: "high", cities: ["San Jose"],
+      provision: "C.3", title: "O&M Inspection Capacity — 76% of Projects Uninspected",
+      gap: "San Jose inspected only 161 of 696 regulated projects (24%) in FY 24-25. The inventory is growing by ~40 projects/year. At current staffing, the uninspected backlog will exceed 800 projects by FY 26-27, creating compliance liability and unknown treatment system performance.",
+      evidence: "C.3 O&M inspection table: 696 total, 161 inspected, 24% rate. FY 23-24 inventory was 655 (+41 in one year). First-pass compliance only 37%.",
+      effort: "Medium", impact: "High",
+      actions: [
+        "Add 1–2 dedicated C.3 O&M inspectors to close backlog — estimated $180K–$240K/yr",
+        "Implement risk-based prioritization: inspect older systems and those with prior failures first",
+        "Develop self-certification program for low-risk LID systems to free inspector capacity for high-risk sites",
+        "Increase first-pass compliance rate from 37% via pre-inspection outreach to project owners",
+      ],
+      spend: { current: 14665000, recommended: 15200000, rationale: "+$535K for 2 additional C.3 inspectors; modest cost relative to compliance risk" },
+    },
+    {
+      id: 4, priority: "high", cities: ["San Jose"],
+      provision: "C.4", title: "Industrial Violation Correction Rate Declining",
+      gap: "San Jose's timely correction rate fell from 86% to 84% in FY 24-25 — 16% of identified violations are not corrected within the required 10-business-day window. With 8,600+ businesses in inventory and 180 enforcement actions, uncorrected violations represent ongoing discharge risk.",
+      evidence: "C.4 reporting: 3,218 inspections, 180 enforcement actions, 84% timely correction rate (down from 86% FY 23-24).",
+      effort: "Low", impact: "High",
+      actions: [
+        "Implement automated follow-up notifications at day 7 (3 days before deadline) for open violations",
+        "Escalate repeat offenders to Level 3/4 enforcement — verbal warnings for recidivists are ineffective",
+        "Target restaurants and auto businesses — highest actual discharge frequency per C.4 data",
+        "Add one enforcement follow-up staff position dedicated to violation tracking closure",
+      ],
+      spend: { current: 1890000, recommended: 2050000, rationale: "+$160K for enforcement follow-up position; high ROI via reduced discharge incidents" },
+    },
+    {
+      id: 5, priority: "high", cities: ["Sunnyvale"],
+      provision: "C.14", title: "Bacteria Source Identification — FIB Sources Not Yet Isolated",
+      gap: "Sunnyvale's $690K C.14 program is monitoring FIB (fecal indicator bacteria) in impaired water bodies but has not yet isolated primary sources. Without source identification, investments remain broad-based rather than targeted. 130 inlet screens installed, but bacteria loading reduction is not yet quantified.",
+      evidence: "C.14 section: 620+ inlet screens, $690K budget, FIB monitoring ongoing. No source isolation confirmed in FY 24-25.",
+      effort: "Medium", impact: "High",
+      actions: [
+        "Commission a dedicated FIB source tracking study using microbial source tracking (MST) techniques",
+        "Prioritize screening in areas with highest-density inlet screen installation",
+        "Coordinate with Santa Clara County Vector Control and adjacent permittees on shared FIB sources",
+        "Set explicit FY 25-26 milestone: identify top 3 FIB source categories",
+      ],
+      spend: { current: 690000, recommended: 850000, rationale: "+$160K for MST study — targeted investment could dramatically improve C.14 ROI" },
+    },
+    {
+      id: 6, priority: "medium", cities: ["Saratoga", "Campbell"],
+      provision: "C.10", title: "Full Trash Capture Gap — Saratoga at 33.4%",
+      gap: "Saratoga has the lowest full trash capture rate (33.4%) among the four cities. While 100% reduction is currently achieved through other measures (street sweeping, cleanups), heavy reliance on operational controls is less reliable long-term than infrastructure. Campbell leads at 72.6%.",
+      evidence: "C.10 reporting: Saratoga 33.4% full capture vs. Campbell 72.6%, Sunnyvale 52.9%, San Jose 59.5%.",
+      effort: "Medium", impact: "Medium",
+      actions: [
+        "Identify high-trash-generation areas in Saratoga for priority full-capture device installation",
+        "Leverage SCVURPPP group purchasing for inlet-based devices (Sunnyvale contract model)",
+        "Set interim target: increase full capture from 33% to 50% by FY 26-27",
+        "Study Campbell's 72.6% capture model — replicate street prioritization methodology",
+      ],
+      spend: { current: 43000, recommended: 120000, rationale: "+$77K for device procurement and installation; significant unit cost reduction via group purchasing" },
+    },
+    {
+      id: 7, priority: "medium", cities: ["Campbell", "Saratoga"],
+      provision: "C.5", title: "Discharge Investigations Reaching Waterways at High Rate",
+      gap: "Campbell reported 10 of 11 discharge events (91%) confirmed to reach waterways. Saratoga reported 5 of 6 (83%). This is substantially higher than would be expected with robust early detection. Detection is happening too late — after discharge has reached the drain.",
+      evidence: "C.5: Campbell 10/11 reached waterways; Saratoga 5/6 reached storm drain or receiving waters.",
+      effort: "Low", impact: "Medium",
+      actions: [
+        "Install additional inlet monitoring devices at high-incident locations near commercial zones",
+        "Expand public reporting app/hotline awareness — target businesses and landscapers who generate most discharges",
+        "Implement dry-weather screening patrols at high-frequency discharge locations",
+        "Train first responders (fire, code enforcement) to identify and immediately report discharge events",
+      ],
+      spend: { current: 38000, recommended: 65000, rationale: "+$27K for expanded detection; reduces discharge events reaching receiving waters" },
+    },
+    {
+      id: 8, priority: "medium", cities: ["San Jose", "Sunnyvale", "Saratoga", "Campbell"],
+      provision: "C.11", title: "Mercury HHW Participation Data Gap — San Jose & Sunnyvale Not Reporting",
+      gap: "San Jose and Sunnyvale do not report household-level HHW participation data for mercury disposal — only Saratoga (476 households, 63 lbs) and Campbell (740 households, 54 lbs) provide quantified figures. With San Jose's population of 979K, even 1% participation would represent ~9,000 households — a major unmeasured data gap.",
+      evidence: "C.11 reporting: Saratoga and Campbell report household and pound data. San Jose and Sunnyvale reference County HHW program without city-specific metrics.",
+      effort: "Low", impact: "Medium",
+      actions: [
+        "Request city-specific HHW participation data from Santa Clara County for San Jose and Sunnyvale",
+        "Add HHW participation metric to annual C.11 reporting for all permittees",
+        "Set participation rate targets: 1% of households minimum for large cities",
+        "Cross-promote HHW during C.7 outreach events — bundle messaging with trash, pesticide programs",
+      ],
+      spend: { current: 0, recommended: 15000, rationale: "Administrative cost only — data request and reporting process improvement" },
+    },
+  ];
+
+  const priorityColor = { critical: "#dc2626", high: "#ea580c", medium: "#d97706", low: "#059669" };
+  const priorityBg = { critical: "#fef2f2", high: "#fff7ed", medium: "#fffbeb", low: "#f0fdf4" };
+  const priorityBorder = { critical: "#fecaca", high: "#fed7aa", medium: "#fde68a", low: "#bbf7d0" };
+
+  const filteredGaps = selectedCity === "All Cities"
+    ? gaps
+    : gaps.filter(g => g.cities.includes(selectedCity));
+
+  const criticalCount = filteredGaps.filter(g => g.priority === "critical").length;
+  const highCount = filteredGaps.filter(g => g.priority === "high").length;
+  const mediumCount = filteredGaps.filter(g => g.priority === "medium").length;
+
+  // Investment gap summary
+  const totalCurrentFiltered = filteredGaps.reduce((s, g) => s + (g.spend?.current || 0), 0);
+  const totalRecommendedFiltered = filteredGaps.reduce((s, g) => s + (g.spend?.recommended || 0), 0);
+
+  return (
+    <div>
+      {/* Summary stats */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 14, marginBottom: 24 }}>
+        <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 12, padding: 18 }}>
+          <div style={{ color: "#dc2626", fontSize: 36, fontWeight: 900 }}>{criticalCount}</div>
+          <div style={{ color: "#dc2626", fontWeight: 700, fontSize: 15 }}>Critical Gaps</div>
+          <div style={{ color: "#94a3b8", fontSize: 13 }}>Immediate action required</div>
+        </div>
+        <div style={{ background: "#fff7ed", border: "1px solid #fed7aa", borderRadius: 12, padding: 18 }}>
+          <div style={{ color: "#ea580c", fontSize: 36, fontWeight: 900 }}>{highCount}</div>
+          <div style={{ color: "#ea580c", fontWeight: 700, fontSize: 15 }}>High Priority</div>
+          <div style={{ color: "#94a3b8", fontSize: 13 }}>Address within 12 months</div>
+        </div>
+        <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 12, padding: 18 }}>
+          <div style={{ color: "#d97706", fontSize: 36, fontWeight: 900 }}>{mediumCount}</div>
+          <div style={{ color: "#d97706", fontWeight: 700, fontSize: 15 }}>Medium Priority</div>
+          <div style={{ color: "#94a3b8", fontSize: 13 }}>Plan for next permit cycle</div>
+        </div>
+        <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 12, padding: 18 }}>
+          <div style={{ color: "#0284c7", fontSize: 24, fontWeight: 900 }}>{fmtCost(totalRecommendedFiltered - totalCurrentFiltered)}</div>
+          <div style={{ color: "#0284c7", fontWeight: 700, fontSize: 15 }}>Additional Investment Needed</div>
+          <div style={{ color: "#94a3b8", fontSize: 13 }}>Across identified gaps</div>
+        </div>
+      </div>
+
+      {/* City filter */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 22, alignItems: "center" }}>
+        <span style={{ color: "#64748b", fontSize: 14, fontWeight: 600 }}>Filter by city:</span>
+        {cityOptions.map(c => (
+          <button key={c} onClick={() => setSelectedCity(c)} style={{
+            background: selectedCity === c ? (c === "All Cities" ? "#0284c7" : COLORS[c] || "#0284c7") : "#ffffff",
+            color: selectedCity === c ? "#ffffff" : "#475569",
+            border: `1px solid ${selectedCity === c ? "transparent" : "#e2e8f0"}`,
+            borderRadius: 20, padding: "6px 16px", fontSize: 14, fontWeight: 600,
+            cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s",
+          }}>{c}</button>
+        ))}
+      </div>
+
+      {/* Gap cards */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {filteredGaps.map(g => (
+          <div key={g.id} style={{
+            background: "#ffffff", border: `1px solid ${priorityBorder[g.priority]}`,
+            borderLeft: `5px solid ${priorityColor[g.priority]}`,
+            borderRadius: 14, overflow: "hidden",
+          }}>
+            {/* Header */}
+            <div style={{ padding: "18px 22px", borderBottom: `1px solid ${priorityBorder[g.priority]}`, background: priorityBg[g.priority] }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                  <span style={{ color: "#0284c7", fontSize: 14, fontWeight: 700, background: "#e0f2fe", padding: "3px 10px", borderRadius: 6 }}>{g.provision}</span>
+                  <span style={{ color: priorityColor[g.priority], fontSize: 13, fontWeight: 700, background: "#ffffff", border: `1px solid ${priorityBorder[g.priority]}`, padding: "3px 12px", borderRadius: 20 }}>{g.priority.toUpperCase()} PRIORITY</span>
+                  {g.cities.map(c => (
+                    <span key={c} style={{ color: COLORS[c] || "#0284c7", fontSize: 13, fontWeight: 600, background: "#ffffff", border: `1px solid ${COLORS[c] || "#0284c7"}44`, padding: "3px 10px", borderRadius: 20 }}>
+                      {c}
+                    </span>
+                  ))}
+                </div>
+                <div style={{ display: "flex", gap: 14, alignItems: "center", flexShrink: 0 }}>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ color: "#94a3b8", fontSize: 12 }}>Effort</div>
+                    <div style={{ color: "#1e293b", fontWeight: 700, fontSize: 14 }}>{g.effort}</div>
+                  </div>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ color: "#94a3b8", fontSize: 12 }}>Impact</div>
+                    <div style={{ color: "#1e293b", fontWeight: 700, fontSize: 14 }}>{g.impact}</div>
+                  </div>
+                </div>
+              </div>
+              <h3 style={{ color: "#1e293b", fontSize: 18, fontWeight: 800, margin: "12px 0 0" }}>{g.title}</h3>
+            </div>
+
+            {/* Body */}
+            <div style={{ padding: "18px 22px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+              <div>
+                <div style={{ color: "#64748b", fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>The Gap</div>
+                <p style={{ color: "#334155", fontSize: 15, lineHeight: 1.7, margin: "0 0 14px" }}>{g.gap}</p>
+                <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: 12 }}>
+                  <div style={{ color: "#64748b", fontSize: 12, fontWeight: 700, marginBottom: 4 }}>📋 EVIDENCE FROM REPORTS</div>
+                  <div style={{ color: "#475569", fontSize: 13, lineHeight: 1.6 }}>{g.evidence}</div>
+                </div>
+
+                {g.spend && (
+                  <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                    <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: 12 }}>
+                      <div style={{ color: "#94a3b8", fontSize: 12 }}>Current Spend</div>
+                      <div style={{ color: "#64748b", fontWeight: 800, fontSize: 18 }}>{fmtCost(g.spend.current)}</div>
+                    </div>
+                    <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 8, padding: 12 }}>
+                      <div style={{ color: "#0284c7", fontSize: 12 }}>Recommended</div>
+                      <div style={{ color: "#0284c7", fontWeight: 800, fontSize: 18 }}>{fmtCost(g.spend.recommended)}</div>
+                    </div>
+                    <div style={{ gridColumn: "1/-1", color: "#94a3b8", fontSize: 12, fontStyle: "italic" }}>{g.spend.rationale}</div>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <div style={{ color: "#64748b", fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Recommended Actions</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {g.actions.map((a, i) => (
+                    <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: "10px 14px" }}>
+                      <div style={{ width: 22, height: 22, borderRadius: "50%", background: priorityColor[g.priority] + "20", border: `1px solid ${priorityColor[g.priority]}40`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: priorityColor[g.priority], fontWeight: 800, fontSize: 12 }}>{i+1}</div>
+                      <span style={{ color: "#334155", fontSize: 14, lineHeight: 1.5 }}>{a}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 export default function App() {
   const [activeTab, setActiveTab] = useState("aggregate");
@@ -551,8 +1043,10 @@ export default function App() {
 
   const tabs = [
     { id: "aggregate", label: "Provision Aggregates" },
-    { id: "compare",   label: "Comparison Charts"   },
-    { id: "overview",  label: "City Overview"        },
+    { id: "trends",    label: "Trends & Predictions"  },
+    { id: "gaps",      label: "Priority Gaps"         },
+    { id: "compare",   label: "Comparison Charts"     },
+    { id: "overview",  label: "City Overview"         },
   ];
 
   const toggle = (code) => setExpandedProvision(p => p === code ? null : code);
@@ -626,6 +1120,20 @@ export default function App() {
                 ))}
               </div>
             </div>
+          </>
+        )}
+
+        {activeTab === "trends" && (
+          <TrendsTab />
+        )}
+
+        {activeTab === "gaps" && (
+          <>
+            <div style={{ marginBottom: 22 }}>
+              <h2 style={{ color: "#1e293b", fontSize: 22, fontWeight: 800, margin: "0 0 6px" }}>Priority Gaps & Future Investment</h2>
+              <p style={{ color: "#64748b", fontSize: 15, margin: 0 }}>Evidence-based gaps identified from FY 24-25 annual reports, ranked by compliance risk and impact potential</p>
+            </div>
+            <GapsTab />
           </>
         )}
 
